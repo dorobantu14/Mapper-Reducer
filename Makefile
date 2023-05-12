@@ -1,5 +1,5 @@
 
 build:
-	g++ tema1.cpp -o tema1 -lpthread -std=c++11
+	g++ main.cpp -o main -lpthread -std=c++11
 clean:
-	rm tema1
+	rm main
