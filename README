@@ -1,7 +1,4 @@
-Name: Dorobantu Tania Alexandra
-Group: 333CC
-
-In this homework I use the Map-Reducer paradigm, so in this order I have two types of threads: Mappers and Reducers.
+I use the Map-Reducer paradigm, so in this order I have two types of threads: Mappers and Reducers.
 For every type I need a function and a structure for the function's arguments.
 
 The function for mappers:
