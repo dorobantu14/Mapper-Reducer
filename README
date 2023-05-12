@@ -1,0 +1,73 @@
+Name: Dorobantu Tania Alexandra
+Group: 333CC
+
+In this homework I use the Map-Reducer paradigm, so in this order I have two types of threads: Mappers and Reducers.
+For every type I need a function and a structure for the function's arguments.
+
+The function for mappers:
+    - for this function I need the following arguments:
+        -> a queue of files that the mappers have to read, each of them should pick one from there
+        while the queue has files in it;
+        -> a mutex because just one thread at a time can verify if the queue has files and then
+        pick a file from the queue and open the file, also just one thread can close that file;
+        -> a barrier in order to wait the mappers to finish their work;
+        -> a map for each thread in which it can write the numbers(that are perfect powers) read from its file;
+        The numbers are organized in this way:
+                > every number that can be written as another number at a power, should be added in the
+                thread's map, in the list from the key that is equal to that power;
+        -> and I also need the number of powers in order to know for which powers I have to verify if the number
+        can be written as another number at that powers (for example if the numbers of powers is 5, I have
+        to check for powers in this range: 2....numberOfPowers + 1);
+
+    - what am I doing in this function?
+        -> first, I am putting a mutex and than only one thread can check if the queue has files in it,
+        while it is not empty, the thread can pick a file and then it starts to read the picked file;
+        -> for every number read, I am checking if the number is equal to 1, if yes I am adding the number
+        in the list from every key in the map, but if not, I am getting through all the powers in the range that
+        I said previous, and I am checking with a function made by me, if the number can be written as another number
+        at that power and if yes, I am adding the number in the list from the key equal with that power;
+        -> and in the end I am using the barrier because I want to wait all the mappers finish their job;
+
+The function for checking if a number is another number at a specified power:
+    - here in order to have an optimal solution, I choose to follow the binary search pattern
+    - in this order, I take two pointers named left and right, the right one is equal with the number and
+    the left one is equal to 1;
+    - then, while left <= right, I get the middle of this range (left...right), and I also take an auxiliary variable in
+    which I will build the powers of that middle;
+    - I will check if the auxiliary variable is bigger then the number, if yes I will break the for loop because
+    it means that I cannot find anymore powers.
+    - In the and I have three cases:
+        1. auxiliary variable = number
+            -> it means that the number is a power and I return true;
+        2. auxiliary variable < number
+            -> it means that that the range in which I will search next for powers should be restricted from left
+            (I should look for bigger numbers) and left = middle + 1;
+        3. and else, range in which I will search next for powers should be restricted from right (I should look for small
+        numbers) and right = middle - 1;
+
+The function for reducers:
+    - for this function I need the following arguments:
+        -> the same barrier from the mappers because when the mappers finished their job, the reducers can start their
+        work ad we have to wait all the threads;
+        -> the list of maps obtained from mappers because we want to concatenate the list from every key;
+        -> the reducer's exponent because every thread have to concatenate the list from the key equal to that
+        exponent and to write the number of unique numbers in its file out + {that exponent}.txt;
+        -> and I also need the test path, because I want to write the result in the current test (for example:
+        if the current test is test0, the path should be test0/out + {thread's exponent}.txt);
+
+    - what am I doing in this function?
+        -> first of all I am waiting, with the barrier, the threads because when the reducers start I want the mappers
+        to have their work done;
+        -> after that I start to concatenate the lists from the keys equal with thread's exponent (the keys from
+        every map from maps list);
+        -> once I obtained the concatenated list, I am creating a set from it because By this way I get rid of the
+        duplicates and the number of unique numbers from that list is the size of that set;
+        -> in the and I write the number of unique numbers in the out file for the current thread;
+
+In main function:
+    - I am taking the argument from command line;
+    - I am initializing all the arguments needed for map function and reduce function;
+    - I am creating the threads, here I have a loop from 0 to number of mappers + number of reducers and if the index
+    is lower than number of mappers it means that I have to create map threads and if the index is bigger or equal
+    than number of mappers it means that I have to create reduce threads;
+    - After creating I join all the threads;
